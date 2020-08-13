@@ -5,8 +5,10 @@ import math
 
 # in minutes
 def time_gap(current, new):
+    
     td = abs(current - new)
     res = td/60
+    
     return res
 
 
@@ -19,6 +21,7 @@ def distance(lat1, lat2, lon1, lon2):
     dlambda = math.radians(lon2 - lon1)
     a = math.sin(dphi / 2) ** 2 + math.cos(phi1) * math.cos(phi2) * math.sin(dlambda / 2) ** 2
     d = 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
     return d
 
 
