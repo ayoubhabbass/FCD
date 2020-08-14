@@ -41,6 +41,10 @@ def csv_files_reader(paths):
     for i in range (0, 300):
 
         name = filename_from_path(paths[i])
+        
+        if name[0] != '3':
+            i -= 1
+            continue
 
         with open(paths[i], newline='') as csvfile:
             
@@ -62,6 +66,18 @@ def csv_files_reader(paths):
                 loc['geo'] = g
                 point['location'] = loc
                 point['moving'] = 1  # en mouvement par défaut
+                
+                direction = 0.0
+                speed = 0.0
+
+                if row['GPS_DIR'] != '':
+                    direction = float(row['GPS_DIR'])
+                    
+                if row['GPS_SPEED'] != '':
+                    speed = float(row['GPS_SPEED'])
+                
+                point['GPS_DIR'] = direction
+                point['GPS_SPEED'] = speed
                 
                 data.append(point)
     
