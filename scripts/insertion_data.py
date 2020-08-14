@@ -1,7 +1,7 @@
 import csv
+from stay_point import *
+from update_dates import *
 from datetime import datetime
-import os
-import glob
 import pymongo
 from pymongo import GEOSPHERE
 
@@ -32,20 +32,18 @@ def filename_from_path(file):
     return file[begin:end]
     
     
-def csv_files_reader(directory):
-    
-    notebook_path = os.path.abspath("Notebook.ipynb")
-    chemin = os.path.join(os.path.dirname(notebook_path), directory)
-
-    paths = glob.glob(chemin+'/*')
+def csv_files_reader(paths):
 
     data = []
 
-    for i in range(0, 100):
+    print('reading...')
+    
+    for i in range (0, 300):
 
         name = filename_from_path(paths[i])
 
         with open(paths[i], newline='') as csvfile:
+            
             reader = csv.DictReader(csvfile)
 
             for row in reader:
@@ -64,7 +62,9 @@ def csv_files_reader(directory):
                 loc['geo'] = g
                 point['location'] = loc
                 point['moving'] = 1  # en mouvement par défaut
+                
                 data.append(point)
+    
     
     print('reading done')
     return data
@@ -85,9 +85,8 @@ def insert_into_database(collection, data):
     collection.insert_many(data)
     print('insertion done')
     
-   
+    
 # Modification de l'attribut moving dans 'fcd'
-
 def set_stayPoints_database(SP, asset_points, collection):
     
     for stayP in SP:
@@ -98,7 +97,6 @@ def set_stayPoints_database(SP, asset_points, collection):
             collection.update_one(filtre, {"$set": {"moving": 0}})
             
             
-
 def research_stayPoints(data, collection):
 
     # tri par asset
@@ -144,23 +142,16 @@ def research_stayPoints(data, collection):
     print(count_SP, 'stay points detected')
     
     
-def insert_data(directory, base, col):
-    
-    client = pymongo.MongoClient('localhost',27017)
-    mydb = client[base]
-    collection = mydb[col]
+def insert_data(paths, col, collection):
     
     # lecture fichiers csv du répertoire
-    dico = csv_files_reader(directory)
+    dico = csv_files_reader(paths)
 
     # insertion dans la collection
     insert_into_database(collection, dico)
 
     # modif du champs 'moving' dans la base de données
     research_stayPoints(dico, collection)
-    
-    # mettre à jour la date de mofication de la collection 'assets'
-    update_last_modification_date(client, base, col)
     
     print('\ndone')
     
