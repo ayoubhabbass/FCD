@@ -9,7 +9,7 @@ def points_density(collection, lon, lat, rad, datemin, datemax):
     # points à une période T
     queryT = {'$and': [{'recorded_at': {"$gt": datemin}}, {'recorded_at': {"$lt": datemax}}]}
     
-    option= {'$and':[{'GPS_SPEED' :{"$ne": 0}},{'moving' : 1},{'GPS_DIR' : {"$ne": 0}}]} 
+    option= {'$and':[{'GPS_SPEED' :{"$ne": 0}},{'moving' : 1}]} 
     query = {'$and': [queryT, option]}
     
 
@@ -155,31 +155,31 @@ def points_top_k_zones(collection, k, rad,datemin,datemax):
 def color_index(km):
     
     if km <= 10:
-        return 0
+        return 8
     
     if km <= 30:
-        return 1
+        return 7
     
     if km <= 50:
-        return 2
+        return 6
     
     if km <= 70:
-        return 3
+        return 5
     
     if km <= 90:
         return 4
     
     if km <= 100:
-        return 5
+        return 3
     
     if km <= 110:
-        return 6
+        return 2
     
     if km <= 130:
-        return 7
+        return 1
     
     if km > 130:
-        return 8
+        return 0
     
     
 def afficher_zones_vitesse(dico):
@@ -205,7 +205,7 @@ def afficher_zones_vitesse(dico):
         for point in z:
             
             # écart de temps inférieur à 12 secondes
-            if time_gap(time, point['recorded_at']) < 0.20:
+            if time_gap(time, point['recorded_at']) < 0.2:
                 continue                        
             
             time = point['recorded_at']
@@ -221,8 +221,6 @@ def afficher_zones_vitesse(dico):
                     radius=0.9,
                     location=[point['latitude'], point['longitude']],
                     color= couleur,
-                    popup= "id="+point['_id']+"\n"+ 
-                    str(datetime.datetime.fromtimestamp(point['recorded_at'])),
                     fill=False,
                 ).add_to(map)
                 
@@ -232,7 +230,7 @@ def afficher_zones_vitesse(dico):
             radius= zone['zone']['radius']*1000,
             color='#3186cc',
             fill= False,
-            popup = "Top "+ str(num),
+            popup = "Top"+ str(num)+ "\n"+ str(zone['density'])+ " voitures",
         ).add_to(map)
                             
     return map
@@ -247,35 +245,35 @@ def avg_color_index(km, avg):
     
     # 5-10 km/h au dessus
     if avg+5 < km and km <= avg+10:
-        return 5
+        return 3
     
     # 10-20 km/h au dessus
     if avg+10 < km and km <= avg+20:
-        return 6
+        return 2
     
     # 20-30 km/h au dessus
     if avg+20 < km and km <= avg+30:
-        return 7
+        return 1
     
     # plus de 30 km/h au dessus
     if avg+30 < km:
-        return 8
+        return 0
     
     # 5-10 km/h en dessous
     if avg-5 > km and km >= avg-10:
-        return 3
+        return 5
     
     # 10-20 km/h en dessous
     if avg-10 > km and km >= avg-20:
-        return 2
+        return 6
     
     # 20-30 km/h en dessous
     if avg-20 > km and km >= avg-30:
-        return 1
+        return 7
     
     # plus de 30 km/h en dessous
     if avg-30 > km:
-        return 0
+        return 1
     
     
 def afficher_zones_avg_vitesse(dico):
@@ -301,7 +299,7 @@ def afficher_zones_avg_vitesse(dico):
         for point in z:
             
             # écart de temps inférieur à 12 secondes
-            if time_gap(time, point['recorded_at']) < 0.20:
+            if time_gap(time, point['recorded_at']) < 0.2:
                 continue                        
             
             time = point['recorded_at']
@@ -317,8 +315,6 @@ def afficher_zones_avg_vitesse(dico):
                     radius=0.9,
                     location=[point['latitude'], point['longitude']],
                     color= couleur,
-                    popup= "id="+point['_id']+"\n"+ 
-                    str(datetime.datetime.fromtimestamp(point['recorded_at'])),
                     fill=False,
                 ).add_to(map)
                 
@@ -328,9 +324,7 @@ def afficher_zones_avg_vitesse(dico):
             radius= zone['zone']['radius']*1000,
             color='#3186cc',
             fill= False,
-            popup = "Top "+ str(num),
+            popup = "Top"+ str(num)+ "\n"+ str(zone['density'])+ " voitures",
         ).add_to(map)
                             
     return map
-
-
